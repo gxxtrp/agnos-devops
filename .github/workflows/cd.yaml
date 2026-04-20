@@ -52,7 +52,7 @@ jobs:
 
   deploy-dev:
     name: Sync Dev via ArgoCD
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: update-image-tags
     environment: dev
     steps:
@@ -85,7 +85,7 @@ jobs:
 
   deploy-uat:
     name: Sync UAT via ArgoCD
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: deploy-dev
     environment: uat  # manual approval gate
     steps:
@@ -115,7 +115,7 @@ jobs:
 
   deploy-prod:
     name: Sync Prod via ArgoCD
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: deploy-uat
     environment: prod  # manual approval gate
     steps:

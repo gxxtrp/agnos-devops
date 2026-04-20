@@ -9,6 +9,7 @@ Production-ready Kubernetes deployment for the Agnos platform — API service, b
 - [Usage](docs/usage.md)
 - [CI/CD Pipeline](docs/cicd.md)
 - [ArgoCD](docs/argocd.md)
+- [GitHub Actions Runner](docs/github-runner.md)
 - [Failure Scenario Handling](docs/failure-scenarios.md)
 
 ## Quick Start
