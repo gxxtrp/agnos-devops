@@ -2,6 +2,8 @@ module github.com/agnos/worker
 
 go 1.23
 
+toolchain go1.23.0
+
 require (
 	go.opentelemetry.io/otel v1.43.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.43.0

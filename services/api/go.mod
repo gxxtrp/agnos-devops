@@ -2,6 +2,8 @@ module github.com/agnos/api
 
 go 1.23
 
+toolchain go1.23.0
+
 require (
 	github.com/prometheus/client_golang v1.19.0
 	go.opentelemetry.io/otel v1.43.0
