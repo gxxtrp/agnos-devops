@@ -11,7 +11,7 @@ Images are pushed to:
 - `ghcr.io/OWNER/agnos-api:<sha>`
 - `ghcr.io/OWNER/agnos-worker:<sha>`
 
-## CD (`cd.yaml`) — triggers on push to `main`
+## CD (`cd.yaml`) — triggers when CI completes successfully on `main`
 
 CD no longer runs `kubectl apply` directly. Instead it:
 
@@ -29,7 +29,7 @@ push to main
      │
      ▼
 CI: lint → test → scan → build → push to GHCR
-     │
+     │  (must pass)
      ▼
 CD: commit image tag to git
      │
