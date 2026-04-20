@@ -25,7 +25,7 @@ helm install eg oci://docker.io/envoyproxy/gateway-helm \
   --version v1.0.0 --namespace envoy-gateway-system --create-namespace
 
 # 4. Install ArgoCD
-helmfile apply -f k8s/argocd/helmfile.yaml
+helmfile apply -f k8s/argocd/helmfile.yamla
 
 # 5. Apply base infrastructure
 kubectl apply -f k8s/rbac/
@@ -38,6 +38,8 @@ kubectl apply -f k8s/argocd/project.yaml
 kubectl apply -f k8s/argocd/applications/workloads/dev/
 kubectl apply -f k8s/argocd/applications/workloads/uat/
 kubectl apply -f k8s/argocd/applications/workloads/prod/
+kubectl apply -f k8s/argocd/applications/systems/
+kubectl apply -f k8s/argocd/applications/monitoring/
 ```
 
 See [docs/setup.md](docs/setup.md) for the full guide including secrets and GHCR pull secret configuration.

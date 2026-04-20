@@ -1,0 +1,72 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: agnos-alerts
+  namespace: monitoring
+  labels:
+    app: prometheus
+    role: alert-rules
+spec:
+  groups:
+    - name: agnos.api
+      interval: 30s
+      rules:
+        - alert: HighErrorRate
+          expr: |
+            (
+              sum(rate(http_requests_total{status=~"5.."}[5m])) by (job)
+              /
+              sum(rate(http_requests_total[5m])) by (job)
+            ) > 0.05
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "High HTTP error rate detected"
+            description: "Error rate for {{ $labels.job }} is above 5% (current: {{ $value | humanizePercentage }}) for the last 5 minutes."
+
+        - alert: APIDown
+          expr: |
+            up{job="otel-collector"} == 0
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: "API target is down"
+            description: "The API scrape target {{ $labels.instance }} has been down for more than 1 minute."
+
+    - name: agnos.worker
+      interval: 30s
+      rules:
+        - alert: WorkerStalled
+          expr: |
+            (time() - worker_last_job_timestamp_seconds) > 300
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Worker job has stalled"
+            description: "Worker has not run a job in the last 5 minutes. Last run: {{ $value | humanizeDuration }} ago."
+
+    - name: agnos.kubernetes
+      interval: 30s
+      rules:
+        - alert: CrashLooping
+          expr: |
+            increase(kube_pod_container_status_restarts_total{namespace="prod"}[15m]) > 5
+          for: 0m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Pod is crash looping"
+            description: "Pod {{ $labels.namespace }}/{{ $labels.pod }} container {{ $labels.container }} has restarted more than 5 times in the last 15 minutes."
+
+        - alert: PodNotReady
+          expr: |
+            kube_pod_status_ready{namespace="prod", condition="true"} == 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Pod not ready"
+            description: "Pod {{ $labels.namespace }}/{{ $labels.pod }} has been in a non-ready state for more than 5 minutes."

@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-config
+  namespace: dev
+data:
+  ENV: "dev"
+  DB_HOST: "mysql"
+  DB_PORT: "3306"
+  DB_NAME: "agnos"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.monitoring:4317"

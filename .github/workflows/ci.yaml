@@ -1,0 +1,167 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+env:
+  REGISTRY: ghcr.io
+  API_IMAGE: ghcr.io/${{ github.repository_owner }}/agnos-api
+  WORKER_IMAGE: ghcr.io/${{ github.repository_owner }}/agnos-worker
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+          cache: false
+
+      - name: Lint api
+        uses: golangci/golangci-lint-action@v4
+        with:
+          version: latest
+          working-directory: services/api
+
+      - name: Lint worker
+        uses: golangci/golangci-lint-action@v4
+        with:
+          version: latest
+          working-directory: services/worker
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+
+      - name: Test api
+        working-directory: services/api
+        run: go test ./... -v -race -coverprofile=coverage.out
+
+      - name: Test worker
+        working-directory: services/worker
+        run: go test ./... -v -race -coverprofile=coverage.out
+
+      - name: Upload api coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-coverage
+          path: services/api/coverage.out
+
+      - name: Upload worker coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: worker-coverage
+          path: services/worker/coverage.out
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy filesystem scan (api)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: ./services/api
+          severity: CRITICAL,HIGH
+          exit-code: "1"
+
+      - name: Run Trivy filesystem scan (worker)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: ./services/worker
+          severity: CRITICAL,HIGH
+          exit-code: "1"
+
+      - name: Run Trivy config scan (Dockerfiles)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: config
+          scan-ref: .
+          severity: CRITICAL,HIGH
+          exit-code: "0"
+
+  build:
+    name: Build & Push
+    runs-on: ubuntu-latest
+    needs: [lint, test, security-scan]
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push api image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./services/api
+          file: ./services/api/Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ${{ env.API_IMAGE }}:${{ github.sha }}
+            ${{ env.API_IMAGE }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push worker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./services/worker
+          file: ./services/worker/Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ${{ env.WORKER_IMAGE }}:${{ github.sha }}
+            ${{ env.WORKER_IMAGE }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Scan api image with Trivy
+        if: github.event_name != 'pull_request'
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.API_IMAGE }}:${{ github.sha }}
+          severity: CRITICAL,HIGH
+          exit-code: "0"
+
+      - name: Scan worker image with Trivy
+        if: github.event_name != 'pull_request'
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.WORKER_IMAGE }}:${{ github.sha }}
+          severity: CRITICAL,HIGH
+          exit-code: "0"

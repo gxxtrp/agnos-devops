@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: agnos
+  namespace: argocd
+spec:
+  description: Agnos platform project
+  sourceRepos:
+    - '*'
+  destinations:
+    - namespace: dev
+      server: https://kubernetes.default.svc
+    - namespace: uat
+      server: https://kubernetes.default.svc
+    - namespace: prod
+      server: https://kubernetes.default.svc
+    - namespace: monitoring
+      server: https://kubernetes.default.svc
+    - namespace: envoy-gateway-system
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: ''
+      kind: Namespace
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  roles:
+    - name: dev-deployer
+      description: Can sync dev environment
+      policies:
+        - p, proj:agnos:dev-deployer, applications, sync, agnos/*, allow
+      groups:
+        - agnos:dev
+    - name: prod-deployer
+      description: Can sync uat and prod environments
+      policies:
+        - p, proj:agnos:prod-deployer, applications, sync, agnos/*, allow
+        - p, proj:agnos:prod-deployer, applications, override, agnos/*, allow
+      groups:
+        - agnos:prod
