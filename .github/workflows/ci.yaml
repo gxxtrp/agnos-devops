@@ -5,10 +5,14 @@ on:
     branches:
       - main
       - develop
+    paths:
+      - 'services/**'
   pull_request:
     branches:
       - main
       - develop
+    paths:
+      - 'services/**'
 
 env:
   REGISTRY: ghcr.io
