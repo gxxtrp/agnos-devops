@@ -27,7 +27,7 @@ spec:
         - name: ghcr-secret
       containers:
         - name: api
-          image: ghcr.io/gxxtrp/agnos-api:latest
+          image: ghcr.io/gxxtrp/agnos-api:db4950cd7a06ef3ad9d779b88e254cb0e0862f96
           ports:
             - containerPort: 8080
               name: http

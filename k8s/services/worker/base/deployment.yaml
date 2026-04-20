@@ -19,7 +19,7 @@ spec:
         - name: ghcr-secret
       containers:
         - name: worker
-          image: ghcr.io/gxxtrp/agnos-worker:latest
+          image: ghcr.io/gxxtrp/agnos-worker:db4950cd7a06ef3ad9d779b88e254cb0e0862f96
           envFrom:
             - configMapRef:
                 name: worker-config
