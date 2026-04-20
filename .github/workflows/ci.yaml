@@ -29,6 +29,14 @@ jobs:
           go-version: "1.22"
           cache: false
 
+      - name: Tidy api deps
+        working-directory: services/api
+        run: go mod tidy
+
+      - name: Tidy worker deps
+        working-directory: services/worker
+        run: go mod tidy
+
       - name: Lint api
         uses: golangci/golangci-lint-action@v4
         with:
