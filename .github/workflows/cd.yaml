@@ -50,95 +50,95 @@ jobs:
           git diff --staged --quiet || git commit -m "chore: update image tags to ${{ github.sha }} [skip ci]"
           git push
 
-  deploy-dev:
-    name: Sync Dev via ArgoCD
-    runs-on: self-hosted
-    needs: update-image-tags
-    environment: dev
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  # deploy-dev:
+  #   name: Sync Dev via ArgoCD
+  #   runs-on: self-hosted
+  #   needs: update-image-tags
+  #   environment: dev
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
 
-      - name: Install ArgoCD CLI
-        run: |
-          curl -sSL -o /usr/local/bin/argocd \
-            https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
-          chmod +x /usr/local/bin/argocd
+  #     - name: Install ArgoCD CLI
+  #       run: |
+  #         curl -sSL -o /usr/local/bin/argocd \
+  #           https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+  #         chmod +x /usr/local/bin/argocd
 
-      - name: Login to ArgoCD
-        run: |
-          argocd login ${{ secrets.ARGOCD_SERVER }} \
-            --auth-token ${{ secrets.ARGOCD_TOKEN }} \
-            --grpc-web --insecure
+  #     - name: Login to ArgoCD
+  #       run: |
+  #         argocd login ${{ secrets.ARGOCD_SERVER }} \
+  #           --auth-token ${{ secrets.ARGOCD_TOKEN }} \
+  #           --grpc-web --insecure
 
-      - name: Sync api-dev
-        run: argocd app sync api-dev --timeout 120
+  #     - name: Sync api-dev
+  #       run: argocd app sync api-dev --timeout 120
 
-      - name: Sync worker-dev
-        run: argocd app sync worker-dev --timeout 120
+  #     - name: Sync worker-dev
+  #       run: argocd app sync worker-dev --timeout 120
 
-      - name: Wait for api-dev healthy
-        run: argocd app wait api-dev --health --timeout 120
+  #     - name: Wait for api-dev healthy
+  #       run: argocd app wait api-dev --health --timeout 120
 
-      - name: Wait for worker-dev healthy
-        run: argocd app wait worker-dev --health --timeout 120
+  #     - name: Wait for worker-dev healthy
+  #       run: argocd app wait worker-dev --health --timeout 120
 
-  deploy-uat:
-    name: Sync UAT via ArgoCD
-    runs-on: self-hosted
-    needs: deploy-dev
-    environment: uat  # manual approval gate
-    steps:
-      - name: Install ArgoCD CLI
-        run: |
-          curl -sSL -o /usr/local/bin/argocd \
-            https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
-          chmod +x /usr/local/bin/argocd
+  # deploy-uat:
+  #   name: Sync UAT via ArgoCD
+  #   runs-on: self-hosted
+  #   needs: deploy-dev
+  #   environment: uat  # manual approval gate
+  #   steps:
+  #     - name: Install ArgoCD CLI
+  #       run: |
+  #         curl -sSL -o /usr/local/bin/argocd \
+  #           https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+  #         chmod +x /usr/local/bin/argocd
 
-      - name: Login to ArgoCD
-        run: |
-          argocd login ${{ secrets.ARGOCD_SERVER }} \
-            --auth-token ${{ secrets.ARGOCD_TOKEN }} \
-            --grpc-web --insecure
+  #     - name: Login to ArgoCD
+  #       run: |
+  #         argocd login ${{ secrets.ARGOCD_SERVER }} \
+  #           --auth-token ${{ secrets.ARGOCD_TOKEN }} \
+  #           --grpc-web --insecure
 
-      - name: Sync api-uat
-        run: argocd app sync api-uat --timeout 120
+  #     - name: Sync api-uat
+  #       run: argocd app sync api-uat --timeout 120
 
-      - name: Sync worker-uat
-        run: argocd app sync worker-uat --timeout 120
+  #     - name: Sync worker-uat
+  #       run: argocd app sync worker-uat --timeout 120
 
-      - name: Wait for api-uat healthy
-        run: argocd app wait api-uat --health --timeout 120
+  #     - name: Wait for api-uat healthy
+  #       run: argocd app wait api-uat --health --timeout 120
 
-      - name: Wait for worker-uat healthy
-        run: argocd app wait worker-uat --health --timeout 120
+  #     - name: Wait for worker-uat healthy
+  #       run: argocd app wait worker-uat --health --timeout 120
 
-  deploy-prod:
-    name: Sync Prod via ArgoCD
-    runs-on: self-hosted
-    needs: deploy-uat
-    environment: prod  # manual approval gate
-    steps:
-      - name: Install ArgoCD CLI
-        run: |
-          curl -sSL -o /usr/local/bin/argocd \
-            https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
-          chmod +x /usr/local/bin/argocd
+  # deploy-prod:
+  #   name: Sync Prod via ArgoCD
+  #   runs-on: self-hosted
+  #   needs: deploy-uat
+  #   environment: prod  # manual approval gate
+  #   steps:
+  #     - name: Install ArgoCD CLI
+  #       run: |
+  #         curl -sSL -o /usr/local/bin/argocd \
+  #           https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+  #         chmod +x /usr/local/bin/argocd
 
-      - name: Login to ArgoCD
-        run: |
-          argocd login ${{ secrets.ARGOCD_SERVER }} \
-            --auth-token ${{ secrets.ARGOCD_TOKEN }} \
-            --grpc-web --insecure
+  #     - name: Login to ArgoCD
+  #       run: |
+  #         argocd login ${{ secrets.ARGOCD_SERVER }} \
+  #           --auth-token ${{ secrets.ARGOCD_TOKEN }} \
+  #           --grpc-web --insecure
 
-      - name: Sync api-prod
-        run: argocd app sync api-prod --timeout 180
+  #     - name: Sync api-prod
+  #       run: argocd app sync api-prod --timeout 180
 
-      - name: Sync worker-prod
-        run: argocd app sync worker-prod --timeout 180
+  #     - name: Sync worker-prod
+  #       run: argocd app sync worker-prod --timeout 180
 
-      - name: Wait for api-prod healthy
-        run: argocd app wait api-prod --health --timeout 180
+  #     - name: Wait for api-prod healthy
+  #       run: argocd app wait api-prod --health --timeout 180
 
-      - name: Wait for worker-prod healthy
-        run: argocd app wait worker-prod --health --timeout 180
+  #     - name: Wait for worker-prod healthy
+  #       run: argocd app wait worker-prod --health --timeout 180
