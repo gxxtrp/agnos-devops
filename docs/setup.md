@@ -3,22 +3,21 @@
 ## Prerequisites
 
 - [minikube](https://minikube.sigs.k8s.io/docs/start/) >= 1.32
-- [podman](https://podman.io/getting-started/installation) >= 4.x
+- [docker](https://docs.docker.com/get-docker/) >= 24.x
 - [kubectl](https://kubernetes.io/docs/tasks/tools/) >= 1.29
 - [helm](https://helm.sh/docs/intro/install/) >= 3.14
 - [helmfile](https://github.com/helmfile/helmfile/releases) >= 0.162
 
 ---
 
-## 1. Start Minikube with Podman driver
+## 1. Start Minikube with Docker driver
 
 ```bash
 minikube start \
-  --driver=podman \
-  --container-runtime=containerd \
+  --driver=docker \
   --cpus=4 \
   --memory=8192 \
-  --kubernetes-version=v1.29.0
+  --kubernetes-version=v1.34.0
 ```
 
 Enable required addons:

@@ -15,7 +15,7 @@ Production-ready Kubernetes deployment for the Agnos platform — API service, b
 
 ```bash
 # 1. Start minikube
-minikube start --driver=podman --container-runtime=containerd --cpus=4 --memory=8192
+minikube start --driver=docker --cpus=4 --memory=8192
 
 # 2. Create namespaces
 kubectl apply -f k8s/namespaces.yaml
