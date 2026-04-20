@@ -26,7 +26,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.22"
+          go-version: "1.23"
           cache: false
 
       - name: Tidy api deps
@@ -38,16 +38,16 @@ jobs:
         run: go mod tidy
 
       - name: Lint api
-        uses: golangci/golangci-lint-action@v4
+        uses: golangci/golangci-lint-action@v6
         with:
-          version: latest
+          version: v1.64.8
           working-directory: services/api
           args: --timeout=5m
 
       - name: Lint worker
-        uses: golangci/golangci-lint-action@v4
+        uses: golangci/golangci-lint-action@v6
         with:
-          version: latest
+          version: v1.64.8
           working-directory: services/worker
           args: --timeout=5m
 
@@ -61,7 +61,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.22"
+          go-version: "1.23"
 
       - name: Tidy and download api deps
         working-directory: services/api
@@ -77,23 +77,11 @@ jobs:
 
       - name: Test api
         working-directory: services/api
-        run: go test ./... -v -race -coverprofile=coverage.out
+        run: go test ./... -v -race
 
       - name: Test worker
         working-directory: services/worker
-        run: go test ./... -v -race -coverprofile=coverage.out
-
-      - name: Upload api coverage
-        uses: actions/upload-artifact@v4
-        with:
-          name: api-coverage
-          path: services/api/coverage.out
-
-      - name: Upload worker coverage
-        uses: actions/upload-artifact@v4
-        with:
-          name: worker-coverage
-          path: services/worker/coverage.out
+        run: go test ./... -v -race
 
   security-scan:
     name: Security Scan
