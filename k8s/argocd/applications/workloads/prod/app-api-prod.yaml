@@ -8,7 +8,7 @@ metadata:
 spec:
   project: agnos
   source:
-    repoURL: https://github.com/OWNER/REPO.git
+    repoURL: https://github.com/gxxtrp/agnos-devops.git
     targetRevision: main
     path: k8s/services/api/prod
   destination:
